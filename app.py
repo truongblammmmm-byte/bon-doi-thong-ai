@@ -6,7 +6,7 @@ print("===========================================")
 print("⏳ BƯỚC 1: ĐANG HUẤN LUYỆN LẠI AI CHUẨN 6 BIẾN...")
 
 # 1. Đọc và dọn dẹp dữ liệu (Đảm bảo file CSV nằm cùng thư mục với file app.py)
-df = pd.read_csv('dataadidas.xlsx - Data Sales Adidas.csv')
+df = pd.read_excel('du_lieu_sach_de_chay_AI.xlsx')
 
 for col in ['Units Sold', 'Price per Unit']:
     if col in df.columns:
