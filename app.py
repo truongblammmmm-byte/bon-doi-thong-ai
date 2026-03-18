@@ -3,39 +3,31 @@ from sklearn.ensemble import RandomForestRegressor
 from flask import Flask, request, jsonify
 
 print("===========================================")
-print("⏳ BƯỚC 1: ĐANG HUẤN LUYỆN LẠI AI CHUẨN 6 BIẾN...")
+print("⏳ BƯỚC 1: ĐANG HUẤN LUYỆN LẠI AI DỰA TRÊN DỮ LIỆU SẠCH...")
 
-# 1. Đọc và dọn dẹp dữ liệu (Đảm bảo file CSV nằm cùng thư mục với file app.py)
+# 1. Đọc dữ liệu trực tiếp từ file Excel sạch mới (Đảm bảo file .xlsx nằm cùng thư mục)
 df = pd.read_excel('du_lieu_sach_de_chay_AI.xlsx')
 
-for col in ['Units Sold', 'Price per Unit']:
-    if col in df.columns:
-        df[col] = df[col].astype(str).str.replace(',', '').astype(float)
+# 2. Định nghĩa chính xác 6 biến (features) và biến mục tiêu (target)
+# (Khớp hoàn toàn với các tên cột trong file Excel của bạn)
+features = ['Product_ID', 'Month', 'Avg_Price', 'Lag_1', 'Lag_2', 'Lag_3']
+target = 'Units Sold'
 
-df['Invoice Date'] = pd.to_datetime(df['Invoice Date'])
-df['Month'] = df['Invoice Date'].dt.month
-df = df.sort_values(by=['Product', 'Invoice Date'])
-df['Product_ID'] = df['Product'].astype('category').cat.codes
-df = df.rename(columns={'Price per Unit': 'Avg_Price'})
+# 3. Loại bỏ các dòng chứa giá trị null (để AI học chính xác nhất)
+# (Dữ liệu của bạn rất đẹp, nhưng thao tác này đảm bảo an toàn tuyệt đối)
+print(f"Số lượng dòng trước khi drop null: {len(df)}")
+df = df.dropna(subset=features + [target])
+print(f"Số lượng dòng sau khi drop null: {len(df)}")
 
-df['Lag_1'] = df.groupby('Product_ID')['Units Sold'].shift(1)
-df['Lag_2'] = df.groupby('Product_ID')['Units Sold'].shift(2)
-df['Lag_3'] = df.groupby('Product_ID')['Units Sold'].shift(3)
-df = df.dropna(subset=['Lag_1', 'Lag_2', 'Lag_3', 'Avg_Price', 'Units Sold'])
-
-features = ['Product_ID', 'Month', 'Lag_1', 'Lag_2', 'Lag_3', 'Avg_Price']
-X = df[features]
-y = df['Units Sold']
-
-# 2. Huấn luyện mô hình
+# 4. Huấn luyện mô hình Random Forest
 model = RandomForestRegressor(n_estimators=100, random_state=42)
-model.fit(X, y)
+model.fit(df[features], df[target])
 print("✅ ĐÃ TRAIN XONG! NÃO BỘ SẴN SÀNG TRÊN CLOUD.")
 
 print("===========================================")
 print("🚀 BƯỚC 2: KHỞI ĐỘNG MÁY CHỦ API...")
 
-# 3. Khởi tạo Flask App
+# 5. Khởi tạo Flask App (Logic predict giữ nguyên vì nó nhận 6 biến)
 app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
@@ -45,11 +37,11 @@ def predict():
         # Lấy đúng 6 biến từ n8n
         row = [
             data.get('Product_ID', 1),
-            data.get('Month', 1),
-            data.get('Lag_1', 0),
-            data.get('Lag_2', 0),
-            data.get('Lag_3', 0),
-            data.get('Avg_Price', 0)
+            data.get('Month', 11), # Giá trị mặc định là tháng 11
+            data.get('Avg_Price', 110),
+            data.get('Lag_1', 36000),
+            data.get('Lag_2', 30000),
+            data.get('Lag_3', 20000)
         ]
         # Bọc vào bảng để AI tính toán
         df_input = pd.DataFrame([row], columns=features)
@@ -60,6 +52,6 @@ def predict():
         return jsonify({"error": str(e)})
 
 # Lệnh chạy server cho môi trường Cloud
+# (Trên Render, Gunicorn sẽ sử dụng app, lệnh này OK cho local và ko vấn đề cho cloud)
 if __name__ == '__main__':
-    # host='0.0.0.0' giúp máy chủ Cloud mở luồng nhận dữ liệu từ bên ngoài
     app.run(host='0.0.0.0', port=5000)
