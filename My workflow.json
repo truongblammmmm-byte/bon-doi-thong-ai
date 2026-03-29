@@ -1,0 +1,460 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtDayOfMonth": 25,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "25e8b495-572a-486c-b950-fe964f72c1d7",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg",
+          "mode": "list",
+          "cachedResultName": "Adidas - Quản lý tồn kho",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Trang tính1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        0
+      ],
+      "id": "3e87f33d-4848-4c17-9e3f-4ec6768ee367",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EZ2SvIiQgVv7g0qX",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "840b09a8-23a6-4716-80a3-9da9c7e30e6f",
+              "leftValue": "={{ $json.AI_DU_BAO }}",
+              "rightValue": "={{ $('Get row(s) in sheet').item.json['Tồn kho hiện tại'] }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "6260460a-0132-4e5f-b149-cfdb2ea6eaf6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "lamtbk24402b@st.uel.edu.vn",
+        "subject": "=CẢNH BÁO AI] Nguy cơ đứt hàng Men's Street Footwear trong tháng {{ $('Get row(s) in sheet').item.json['Tháng cần dự báo'] }}",
+        "message": "=\nKính gửi Quản lý Cửa hàng,\n\n\nHệ thống AI Demand Forecasting vừa phát hiện nguy cơ thiếu hụt hàng hóa nghiêm trọng trong tháng {{ $('Get row(s) in sheet').item.json['Tháng cần dự báo'] }} tới nếu không nhập thêm hàng kịp thời.\n\n\nChi tiết phân tích từ hệ thống:\n\n\nSản phẩm: Men's Street Footwear.\n\n\nTồn kho hiện tại: {{ $('Get row(s) in sheet').item.json['Tồn kho hiện tại'] }}.\n\n\nAI Dự báo nhu cầu tháng {{ $('Get row(s) in sheet').item.json['Tháng cần dự báo'] }}: {{ $json[\"AI_DU_BAO\"] }}.\n\n\nHÀNH ĐỘNG ĐỀ XUẤT: Tồn kho hiện tại đang thấp hơn mức nhu cầu thị trường mà AI dự báo. Hệ thống kiến nghị anh/chị xem xét duyệt lệnh nhập khẩn cấp để tránh tình trạng đứt hàng và bảo vệ doanh thu.\n\n\nTrân trọng,\n\nAI Hệ thống Quản trị Chuỗi Cung Ứng.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        -112
+      ],
+      "id": "c43710dd-ecb5-4fc2-96fb-74b78f2d10d9",
+      "name": "Send a message",
+      "webhookId": "e0c929a3-4864-421a-ba6b-40511bce196f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6M5Jb9MVZ1kcq8zn",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "lamtbk24402b@st.uel.edu.vn",
+        "subject": "=Đề xuất không nhập hàng hóa tháng tới!",
+        "message": "=\nKính gửi Quản lý Cửa hàng,\n\n\nHệ thống AI Demand Forecasting vừa phát hiện nguy cơ dư thừa trong tháng {{ $('Get row(s) in sheet').item.json['Tháng cần dự báo'] }} tới nếu như cứ tiếp tục nhập thêm.\n\n\nChi tiết phân tích từ hệ thống:\n\n\nSản phẩm: Men's Street Footwear.\n\n\nTồn kho hiện tại: {{ $('Get row(s) in sheet').item.json['Tồn kho hiện tại'] }}.\n\n\nAI Dự báo nhu cầu tháng {{ $('Get row(s) in sheet').item.json['Tháng cần dự báo'] }}: {{ $json[\"AI_DU_BAO\"] }}.\n\n\nHÀNH ĐỘNG ĐỀ XUẤT: Tồn kho hiện tại đang cao hơn mức nhu cầu thị trường mà AI dự báo. Hệ thống kiến nghị anh/chị xem xét duyệt lệnh tạm dừng nhập hàng để tránh tình trạng tồn kho và bảo vệ doanh thu.\n\n\nTrân trọng,\n\nAI Hệ thống Quản trị Chuỗi Cung Ứng.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        128
+      ],
+      "id": "65bc9d4a-572b-4f2c-9b21-7f001b9174c6",
+      "name": "Send a message1",
+      "webhookId": "957f2599-c9a2-468e-9695-8aed4f1ee37a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6M5Jb9MVZ1kcq8zn",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg",
+          "mode": "list",
+          "cachedResultName": "Adidas - Quản lý tồn kho",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Trang tính1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Dự đoán": "={{ $('HTTP Request').item.json.AI_DU_BAO }}",
+            "Cảnh Báo": "Nguy cơ đứt hàng - Cần nhập gấp!"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Tên sản phẩm",
+              "displayName": "Tên sản phẩm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tồn kho hiện tại",
+              "displayName": "Tồn kho hiện tại",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Doanh số tháng trước",
+              "displayName": "Doanh số tháng trước",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dự đoán",
+              "displayName": "Dự đoán",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cảnh Báo",
+              "displayName": "Cảnh Báo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1104,
+        -288
+      ],
+      "id": "383d6f0c-437d-4cd0-a512-867b1afd0802",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EZ2SvIiQgVv7g0qX",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://bon-doi-thong-ai-1.onrender.com/predict",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "ngrok-skip-browser-warning",
+              "value": "true"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"Product_ID\": {{ $json[\"Mã ID\"] }},\n  \"Month\": {{ $json[\"Tháng cần dự báo\"] }},\n  \"Lag_1\": {{ $json[\"Doanh số 1 tháng trước\"] }},\n  \"Lag_2\": {{ $json[\"Doanh số 2 tháng trước\"] }},\n  \"Lag_3\": {{ $json[\"Doanh số 3 tháng trước\"] }},\n  \"Avg_Price\": {{ $json[\"Giá bán dự kiến\"] }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "fe1cbb2a-f207-4e2a-be2b-ac31eae33506",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg",
+          "mode": "list",
+          "cachedResultName": "Adidas - Quản lý tồn kho",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Trang tính1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cS_N6pUggJ_vBlDct-2mq9WMmhw-rnXcZ7L67s7semg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Dự đoán": "={{ $('HTTP Request').item.json.AI_DU_BAO }}",
+            "Cảnh Báo": "Hàng đã đủ cho tháng tới"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Tên sản phẩm",
+              "displayName": "Tên sản phẩm",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tồn kho hiện tại",
+              "displayName": "Tồn kho hiện tại",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Doanh số tháng trước",
+              "displayName": "Doanh số tháng trước",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dự đoán",
+              "displayName": "Dự đoán",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Cảnh Báo",
+              "displayName": "Cảnh Báo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1104,
+        288
+      ],
+      "id": "53682088-359f-4fb4-8606-590783e70d28",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EZ2SvIiQgVv7g0qX",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d8246e07-8d52-47e8-bc51-e7782106421d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "137294ffdcc964e215a50d0da9b0c5a9cc2cac165269eb1c0abba14c0e6ebf1f"
+  },
+  "id": "RPGutqpTpaHRjzVe",
+  "tags": []
+}
