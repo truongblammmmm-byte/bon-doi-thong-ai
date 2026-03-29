@@ -9,12 +9,10 @@ print("⏳ BƯỚC 1: ĐANG HUẤN LUYỆN LẠI AI DỰA TRÊN DỮ LIỆU SẠ
 df = pd.read_excel('du_lieu_sach_de_chay_AI.xlsx')
 
 # 2. Định nghĩa chính xác 6 biến (features) và biến mục tiêu (target)
-# (Khớp hoàn toàn với các tên cột trong file Excel của bạn)
 features = ['Product_ID', 'Month', 'Avg_Price', 'Lag_1', 'Lag_2', 'Lag_3']
 target = 'Units Sold'
 
-# 3. Loại bỏ các dòng chứa giá trị null (để AI học chính xác nhất)
-# (Dữ liệu của bạn rất đẹp, nhưng thao tác này đảm bảo an toàn tuyệt đối)
+# 3. Loại bỏ các dòng chứa giá trị null
 print(f"Số lượng dòng trước khi drop null: {len(df)}")
 df = df.dropna(subset=features + [target])
 print(f"Số lượng dòng sau khi drop null: {len(df)}")
@@ -27,17 +25,17 @@ print("✅ ĐÃ TRAIN XONG! NÃO BỘ SẴN SÀNG TRÊN CLOUD.")
 print("===========================================")
 print("🚀 BƯỚC 2: KHỞI ĐỘNG MÁY CHỦ API...")
 
-# 5. Khởi tạo Flask App (Logic predict giữ nguyên vì nó nhận 6 biến)
+# 5. Khởi tạo Flask App 
 app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.json
-        # Lấy đúng 6 biến từ n8n
+       
         row = [
             data.get('Product_ID', 1),
-            data.get('Month', 11), # Giá trị mặc định là tháng 11
+            data.get('Month', 11),
             data.get('Avg_Price', 110),
             data.get('Lag_1', 36000),
             data.get('Lag_2', 30000),
