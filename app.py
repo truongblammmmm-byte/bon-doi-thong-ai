@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 print("===========================================")
 print("⏳ BƯỚC 1: ĐANG HUẤN LUYỆN LẠI AI DỰA TRÊN DỮ LIỆU SẠCH...")
 
-# 1. Đọc dữ liệu trực tiếp từ file Excel sạch mới (Đảm bảo file .xlsx nằm cùng thư mục)
+# 1. Đọc dữ liệu trực tiếp từ file Excel 
 df = pd.read_excel('du_lieu_sach_de_chay_AI.xlsx')
 
 # 2. Định nghĩa chính xác 6 biến (features) và biến mục tiêu (target)
@@ -20,10 +20,10 @@ print(f"Số lượng dòng sau khi drop null: {len(df)}")
 # 4. Huấn luyện mô hình Random Forest
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(df[features], df[target])
-print("✅ ĐÃ TRAIN XONG! NÃO BỘ SẴN SÀNG TRÊN CLOUD.")
+print(" ĐÃ TRAIN XONG! NÃO BỘ SẴN SÀNG TRÊN CLOUD.")
 
 print("===========================================")
-print("🚀 BƯỚC 2: KHỞI ĐỘNG MÁY CHỦ API...")
+print(" BƯỚC 2: KHỞI ĐỘNG MÁY CHỦ API...")
 
 # 5. Khởi tạo Flask App 
 app = Flask(__name__)
@@ -50,6 +50,5 @@ def predict():
         return jsonify({"error": str(e)})
 
 # Lệnh chạy server cho môi trường Cloud
-# (Trên Render, Gunicorn sẽ sử dụng app, lệnh này OK cho local và ko vấn đề cho cloud)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
