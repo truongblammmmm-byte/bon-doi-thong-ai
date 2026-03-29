@@ -3,7 +3,7 @@ from sklearn.ensemble import RandomForestRegressor
 from flask import Flask, request, jsonify
 
 print("===========================================")
-print("⏳ BƯỚC 1: ĐANG HUẤN LUYỆN LẠI AI DỰA TRÊN DỮ LIỆU SẠCH...")
+print(" BƯỚC 1: ĐANG HUẤN LUYỆN LẠI AI DỰA TRÊN DỮ LIỆU SẠCH...")
 
 # 1. Đọc dữ liệu trực tiếp từ file Excel 
 df = pd.read_excel('du_lieu_sach_de_chay_AI.xlsx')
